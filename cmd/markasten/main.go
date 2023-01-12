@@ -1,17 +1,19 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
 var (
-	inputPath *string
+	inputPath  *string
 	outputPath *string
 )
 
-func main() {
+func newRootCmd() *cobra.Command {
 	tagsCommand := &cobra.Command{
-		Use: "tags",
+		Use:  "tags",
 		RunE: tagsRunFn,
 	}
 	inputPath = tagsCommand.Flags().StringP("input", "i", "", "The location of the input files")
@@ -20,9 +22,16 @@ func main() {
 		Use: "markasten",
 	}
 	rootCmd.AddCommand(tagsCommand)
+	return rootCmd
+
+}
+
+func main() {
+	rootCmd := newRootCmd()
 	rootCmd.Execute()
 }
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {
+	fmt.Printf("tags called with -i %s and -o %s\n", *inputPath, *outputPath)
 	return nil
 }

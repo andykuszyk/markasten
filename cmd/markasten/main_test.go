@@ -5,5 +5,7 @@ import (
 )
 
 func TestTags(t *testing.T) {
-	main()
+	rootCmd := newRootCmd()
+	rootCmd.SetArgs([]string{"tags", "-i", "foo", "-o", "bar"})
+	rootCmd.Execute()
 }
