@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/spf13/cobra"
 )
@@ -33,5 +34,6 @@ func main() {
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {
 	fmt.Printf("tags called with -i %s and -o %s\n", *inputPath, *outputPath)
+	ioutil.WriteFile(*outputPath, []byte("foo"), 0600)
 	return nil
 }
