@@ -94,7 +94,7 @@ func TestTags(t *testing.T) {
 			actualOutputBytes, err := os.ReadFile(actualOutputFilePath)
 			require.NoError(t, err)
 
-			require.Equal(t, string(actualOutputBytes), string(expectedOutputBytes))
+			require.Equal(t, string(expectedOutputBytes), string(actualOutputBytes))
 		})
 	}
 }
