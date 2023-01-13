@@ -1,32 +1,113 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
+type file struct {
+	name     string
+	contents []string
+}
+
+type testCase struct {
+	name        string
+	inputFiles  []file
+	outputFiles []file
+}
+
 func TestTags(t *testing.T) {
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(wd)
+	for _, tc := range []testCase{
+		{
+			name: "basic tags",
+			inputFiles: []file{
+				{
+					name: "foo.md",
+					contents: []string{
+						"---",
+						"`foo` `spam`",
+						"---",
+						"",
+						"# Foo",
+						"Foo is about something, similar to [bar](./bar.md).",
+					},
+				},
+				{
+					name: "bar.md",
+					contents: []string{
+						"---",
+						"`bar` `eggs` `spam`",
+						"---",
+						"",
+						"# Bar",
+						"Bar is about something, similar to [foo](./foo.md).",
+					},
+				},
+			},
+			outputFiles: []file{
+				{
+					name: "index.md",
+					contents: []string{
+						"# Index",
+						"## Eggs",
+						"- [Bar](./bar.md)",
+						"",
+						"## Foo",
+						"- [Foo](./foo.md)",
+						"",
+						"## Bar",
+						"- [Bar](./bar.md)",
+						"",
+						"## Spam",
+						"- [Bar](./bar.md)",
+						"- [Foo](./foo.md)",
+					},
+				},
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
+			expectedOutputDir := writeFiles(t, tc.outputFiles, "markasten-expected-output")
+			expectedOutputFilePath := filepath.Join(expectedOutputDir, tc.outputFiles[0].name)
+			actualOutputDir, err := os.MkdirTemp("", "markasten-actual-output")
+			require.NoError(t, err)
+			actualOutputFilePath := filepath.Join(actualOutputDir, tc.outputFiles[0].name)
 
-	rootCmd := newRootCmd()
-	rootCmd.SetArgs([]string{"tags", "-i", "../../testdata/input/", "-o", "../../index.md"})
-	rootCmd.Execute()
+			rootCmd := newRootCmd()
+			rootCmd.SetArgs([]string{
+				"tags",
+				"-i",
+				inputDir,
+				"-o",
+				actualOutputFilePath,
+			})
+			rootCmd.Execute()
 
-	outputBytes, err := ioutil.ReadFile("../../index.md")
-	if err != nil {
-		panic(err)
+			expectedOutputBytes, err := os.ReadFile(expectedOutputFilePath)
+			require.NoError(t, err)
+
+			actualOutputBytes, err := os.ReadFile(actualOutputFilePath)
+			require.NoError(t, err)
+
+			require.Equal(t, string(actualOutputBytes), string(expectedOutputBytes))
+		})
 	}
-	inputBytes, err := ioutil.ReadFile("../../testdata/outputs/tags-index/index.md")
-	if err != nil {
-		panic(err)
+}
+
+func writeFiles(t *testing.T, files []file, directoryName string) string {
+	dir, err := os.MkdirTemp("", directoryName)
+	require.NoError(t, err)
+	for _, file := range files {
+		require.NoError(t, os.WriteFile(
+			filepath.Join(dir, file.name),
+			[]byte(strings.Join(file.contents, "\n")),
+			0600,
+		))
 	}
-	if string(outputBytes) != string(inputBytes) {
-		panic("input and output don't match")
-	}
+	return dir
 }
