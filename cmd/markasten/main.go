@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -48,6 +49,8 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 
+	re := regexp.MustCompile("`[^`]+`")
+
 	filesByTags := make(map[string][]indexedFile)
 	for _, dirEntry := range inputDirEntires {
 		if dirEntry.IsDir() {
@@ -75,7 +78,7 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 			if len(line) == 0 {
 				continue
 			}
-			tags := strings.Split(line, " ")
+			tags := re.FindAllString(line, -1)
 			for _, tag := range tags {
 				tagName := strings.Replace(tag, "`", "", -1)
 				scrapedTags = append(scrapedTags, tagName)

@@ -22,53 +22,12 @@ type testCase struct {
 
 func TestTags(t *testing.T) {
 	for _, tc := range []testCase{
-		{
-			name: "basic tags",
-			inputFiles: []file{
-				{
-					name: "foo.md",
-					contents: []string{
-						"---",
-						"`foo` `spam`",
-						"---",
-						"",
-						"# Foo",
-						"Foo is about something, similar to [bar](./bar.md).",
-					},
-				},
-				{
-					name: "bar.md",
-					contents: []string{
-						"---",
-						"`bar` `eggs` `spam`",
-						"---",
-						"",
-						"# Bar",
-						"Bar is about something, similar to [foo](./foo.md).",
-					},
-				},
-			},
-			outputFiles: []file{
-				{
-					name: "index.md",
-					contents: []string{
-						"# Index",
-						"## bar",
-						"- [Bar](bar.md)",
-						"",
-						"## eggs",
-						"- [Bar](bar.md)",
-						"",
-						"## foo",
-						"- [Foo](foo.md)",
-						"",
-						"## spam",
-						"- [Bar](bar.md)",
-						"- [Foo](foo.md)",
-					},
-				},
-			},
-		},
+		basicTags(),
+		basicTagsExtraLineBreaks(),
+		tagsWithExtraSpacing(),
+		tagsWithSpacesNumbersAndSpecialCharacters(),
+		tagsWithUnclosedTag(),
+		// TODO: files in sub directories
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -110,4 +69,220 @@ func writeFiles(t *testing.T, files []file, directoryName string) string {
 		))
 	}
 	return dir
+}
+
+func basicTags() testCase {
+	return testCase{
+		name: "basic tags",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"`foo` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"`bar` `eggs` `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar.md)",
+					"",
+					"## eggs",
+					"- [Bar](bar.md)",
+					"",
+					"## foo",
+					"- [Foo](foo.md)",
+					"",
+					"## spam",
+					"- [Bar](bar.md)",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func basicTagsExtraLineBreaks() testCase {
+	return testCase{
+		name: "basic tags with extra line breaks",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"",
+					"---",
+					"`foo` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"`bar` `eggs` `spam`",
+					"---",
+					"",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar.md)",
+					"",
+					"## eggs",
+					"- [Bar](bar.md)",
+					"",
+					"## foo",
+					"- [Foo](foo.md)",
+					"",
+					"## spam",
+					"- [Bar](bar.md)",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithExtraSpacing() testCase {
+	return testCase{
+		name: "tagsWithExtraSpacing",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"   `foo` `spam`  ",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"`bar`   `eggs`   `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar.md)",
+					"",
+					"## eggs",
+					"- [Bar](bar.md)",
+					"",
+					"## foo",
+					"- [Foo](foo.md)",
+					"",
+					"## spam",
+					"- [Bar](bar.md)",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithSpacesNumbersAndSpecialCharacters() testCase {
+	return testCase{
+		name: "tags with spaces, numbers, and special characters",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					" `foo bar` `spam-eggs` `green_h@m` ",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## foo bar",
+					"- [Foo](foo.md)",
+					"",
+					"## green_h@m",
+					"- [Foo](foo.md)",
+					"",
+					"## spam-eggs",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithUnclosedTag() testCase {
+	return testCase{
+		name: "tags with unclosed tag",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					" `foo` `bar",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## foo",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
 }
