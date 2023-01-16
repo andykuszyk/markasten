@@ -36,6 +36,11 @@ func main() {
 	rootCmd.Execute()
 }
 
+type indexedFile struct {
+	fileName string
+	title    string
+}
+
 func tagsRunFn(cmd *cobra.Command, args []string) error {
 	fmt.Printf("tags called with -i %s and -o %s\n", *inputPath, *outputPath)
 	inputDirEntires, err := os.ReadDir(*inputPath)
@@ -43,7 +48,7 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 
-	filesByTags := make(map[string][]string)
+	filesByTags := make(map[string][]indexedFile)
 	for _, dirEntry := range inputDirEntires {
 		if dirEntry.IsDir() {
 			// TODO scan file tree recursively.
@@ -54,22 +59,38 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			panic(err)
 		}
+
+		title := ""
+		name := dirEntry.Name()
+		var scrapedTags []string
 		lines := strings.Split(string(fileBytes), "\n")
-		for n, line := range lines {
-			if n > 2 {
+		for _, line := range lines {
+			if len(line) > 2 && line[0:2] == "# " {
+				title = line[2:]
 				break
 			}
 			if line == "---" {
 				continue
 			}
+			if len(line) == 0 {
+				continue
+			}
 			tags := strings.Split(line, " ")
 			for _, tag := range tags {
 				tagName := strings.Replace(tag, "`", "", -1)
-				if files, ok := filesByTags[tagName]; ok {
-					filesByTags[tagName] = append(files, dirEntry.Name())
-				} else {
-					filesByTags[tagName] = []string{dirEntry.Name()}
-				}
+				scrapedTags = append(scrapedTags, tagName)
+			}
+		}
+		for _, tagName := range scrapedTags {
+			tagName := tagName
+			file := indexedFile{
+				fileName: name,
+				title:    title,
+			}
+			if files, ok := filesByTags[tagName]; ok {
+				filesByTags[tagName] = append(files, file)
+			} else {
+				filesByTags[tagName] = []indexedFile{file}
 			}
 		}
 	}
@@ -90,21 +111,27 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 	}
 	sort.Strings(sortedTags)
 
-	for _, tag := range sortedTags {
+	for n, tag := range sortedTags {
 		files := filesByTags[tag]
 		_, err = io.WriteString(outputFile, fmt.Sprintf("## %s\n", tag))
 		if err != nil {
 			panic(err)
 		}
-		for _, f := range files {
-			_, err = io.WriteString(outputFile, fmt.Sprintf("- %s\n", f))
+		for m, f := range files {
+			trailingChar := "\n"
+			if m == len(files)-1 && n == len(sortedTags)-1 {
+				trailingChar = ""
+			}
+			_, err = io.WriteString(outputFile, fmt.Sprintf("- [%s](%s)%s", f.title, f.fileName, trailingChar))
 			if err != nil {
 				panic(err)
 			}
 		}
-		_, err = io.WriteString(outputFile, "\n")
-		if err != nil {
-			panic(err)
+		if n < len(sortedTags)-1 {
+			_, err = io.WriteString(outputFile, "\n")
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 
