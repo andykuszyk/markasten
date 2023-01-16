@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -63,10 +64,11 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 			}
 			tags := strings.Split(line, " ")
 			for _, tag := range tags {
-				if files, ok := filesByTags[tag]; ok {
-					filesByTags[tag] = append(files, dirEntry.Name())
+				tagName := strings.Replace(tag, "`", "", -1)
+				if files, ok := filesByTags[tagName]; ok {
+					filesByTags[tagName] = append(files, dirEntry.Name())
 				} else {
-					filesByTags[tag] = []string{dirEntry.Name()}
+					filesByTags[tagName] = []string{dirEntry.Name()}
 				}
 			}
 		}
@@ -77,12 +79,33 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 	defer outputFile.Close()
-	for tag, files := range filesByTags {
-		io.WriteString(outputFile, fmt.Sprintf("## %s\n", tag))
-		for _, f := range files {
-			io.WriteString(outputFile, fmt.Sprintf("- %s\n", f))
+	_, err = io.WriteString(outputFile, "# Index\n")
+	if err != nil {
+		panic(err)
+	}
+
+	var sortedTags []string
+	for tag, _ := range filesByTags {
+		sortedTags = append(sortedTags, tag)
+	}
+	sort.Strings(sortedTags)
+
+	for _, tag := range sortedTags {
+		files := filesByTags[tag]
+		_, err = io.WriteString(outputFile, fmt.Sprintf("## %s\n", tag))
+		if err != nil {
+			panic(err)
 		}
-		io.WriteString(outputFile, "\n")
+		for _, f := range files {
+			_, err = io.WriteString(outputFile, fmt.Sprintf("- %s\n", f))
+			if err != nil {
+				panic(err)
+			}
+		}
+		_, err = io.WriteString(outputFile, "\n")
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return nil
