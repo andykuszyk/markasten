@@ -15,9 +15,10 @@ type file struct {
 }
 
 type testCase struct {
-	name        string
-	inputFiles  []file
-	outputFiles []file
+	name           string
+	additionalArgs []string
+	inputFiles     []file
+	outputFiles    []file
 }
 
 func TestTags(t *testing.T) {
@@ -27,6 +28,7 @@ func TestTags(t *testing.T) {
 		tagsWithExtraSpacing(),
 		tagsWithSpacesNumbersAndSpecialCharacters(),
 		tagsWithUnclosedTag(),
+		tagsWithCustomTitle(),
 		// TODO: files in sub directories
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -38,13 +40,19 @@ func TestTags(t *testing.T) {
 			actualOutputFilePath := filepath.Join(actualOutputDir, tc.outputFiles[0].name)
 
 			rootCmd := newRootCmd()
-			rootCmd.SetArgs([]string{
+			args := []string{
 				"tags",
 				"-i",
 				inputDir,
 				"-o",
 				actualOutputFilePath,
-			})
+			}
+			if len(tc.additionalArgs) > 0 {
+				for _, a := range tc.additionalArgs {
+					args = append(args, a)
+				}
+			}
+			rootCmd.SetArgs(args)
 			rootCmd.Execute()
 
 			expectedOutputBytes, err := os.ReadFile(expectedOutputFilePath)
@@ -175,7 +183,7 @@ func basicTagsExtraLineBreaks() testCase {
 
 func tagsWithExtraSpacing() testCase {
 	return testCase{
-		name: "tagsWithExtraSpacing",
+		name: "tags with extra spacing",
 		inputFiles: []file{
 			{
 				name: "foo.md",
@@ -279,6 +287,36 @@ func tagsWithUnclosedTag() testCase {
 				name: "index.md",
 				contents: []string{
 					"# Index",
+					"## foo",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithCustomTitle() testCase {
+	return testCase{
+		name:           "tags with custom title",
+		additionalArgs: []string{"-t", "README"},
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"`foo`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# README",
 					"## foo",
 					"- [Foo](foo.md)",
 				},

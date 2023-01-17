@@ -15,6 +15,7 @@ import (
 var (
 	inputPath  *string
 	outputPath *string
+	title      *string
 )
 
 func newRootCmd() *cobra.Command {
@@ -24,6 +25,7 @@ func newRootCmd() *cobra.Command {
 	}
 	inputPath = tagsCommand.Flags().StringP("input", "i", "", "The location of the input files")
 	outputPath = tagsCommand.Flags().StringP("output", "o", "", "The location of the output files")
+	title = tagsCommand.Flags().StringP("title", "t", "Index", "The title of the generated index file")
 	rootCmd := &cobra.Command{
 		Use: "markasten",
 	}
@@ -103,7 +105,7 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 	defer outputFile.Close()
-	_, err = io.WriteString(outputFile, "# Index\n")
+	_, err = io.WriteString(outputFile, fmt.Sprintf("# %s\n", *title))
 	if err != nil {
 		panic(err)
 	}
