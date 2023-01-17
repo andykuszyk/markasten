@@ -7,7 +7,7 @@ TODO
 ## Usage
 ### Generate an index of tags from some files
 ```
-markasten tags index -i <path-to-input-files> -o <path-to-index-file>
+markasten tags -i <path-to-input-files> -o <path-to-index-file> -t <index-title>
 ```
 
 ### Find backlinks amongst files
