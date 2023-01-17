@@ -29,7 +29,8 @@ func TestTags(t *testing.T) {
 		tagsWithSpacesNumbersAndSpecialCharacters(),
 		tagsWithUnclosedTag(),
 		tagsWithCustomTitle(),
-		// TODO: files in sub directories
+		tagsWithFilesInSubDirectories(),
+		// TODO: files in sub directories with same names/titles
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -319,6 +320,69 @@ func tagsWithCustomTitle() testCase {
 					"# README",
 					"## foo",
 					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithFilesInSubDirectories() testCase {
+	return testCase{
+		name: "tags with files in sub directories",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar/bar.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+			{
+				name: "spam/spam.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Spam",
+					"Spam is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar/bar.md)",
+					"- [Foo](foo.md)",
+					"- [Spam](spam/spam.md)",
+					"",
+					"## foo",
+					"- [Bar](bar/bar.md)",
+					"- [Foo](foo.md)",
+					"- [Spam](spam/spam.md)",
+					"",
+					"## spam",
+					"- [Bar](bar/bar.md)",
+					"- [Foo](foo.md)",
+					"- [Spam](spam/spam.md)",
 				},
 			},
 		},
