@@ -38,13 +38,12 @@ func TestTags(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
 			expectedOutputDir := writeFiles(t, tc.outputFiles, "markasten-expected-output")
 			expectedOutputFilePath := filepath.Join(expectedOutputDir, tc.outputFiles[0].name)
-			actualOutputDir, err := os.MkdirTemp("", "markasten-actual-output")
-			require.NoError(t, err)
-			actualOutputFilePath := filepath.Join(actualOutputDir, tc.outputFiles[0].name)
+			actualOutputFilePath := filepath.Join(inputDir, tc.outputFiles[0].name)
 
 			rootCmd := newRootCmd()
 			args := []string{
 				"tags",
+				"--debug",
 				"-i",
 				inputDir,
 				"-o",

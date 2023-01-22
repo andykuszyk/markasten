@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,10 +15,11 @@ import (
 )
 
 var (
-	inputPath  *string
-	outputPath *string
-	title      *string
-	re         = regexp.MustCompile("`[^`]+`")
+	inputPath    *string
+	outputPath   *string
+	title        *string
+	debugEnabled *bool
+	re           = regexp.MustCompile("`[^`]+`")
 )
 
 func newRootCmd() *cobra.Command {
@@ -27,12 +30,19 @@ func newRootCmd() *cobra.Command {
 	inputPath = tagsCommand.Flags().StringP("input", "i", "", "The location of the input files")
 	outputPath = tagsCommand.Flags().StringP("output", "o", "", "The location of the output files")
 	title = tagsCommand.Flags().StringP("title", "t", "Index", "The title of the generated index file")
+	debugEnabled = tagsCommand.Flags().Bool("debug", false, "If set, debug logging will be enabled")
 	rootCmd := &cobra.Command{
 		Use: "markasten",
 	}
 	rootCmd.AddCommand(tagsCommand)
 	return rootCmd
 
+}
+
+func debug(format string, v ...any) {
+	if *debugEnabled {
+		log.Printf(format, v...)
+	}
 }
 
 func main() {
@@ -46,20 +56,19 @@ type indexedFile struct {
 }
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {
-	fmt.Printf("tags called with -i %s and -o %s\n", *inputPath, *outputPath)
-	inputDirEntires, err := os.ReadDir(*inputPath)
+	debug("tags called with -i %s and -o %s\n", *inputPath, *outputPath)
+	inputDirEntires, err := newFullDirEntryList(*inputPath)
 	if err != nil {
 		panic(err)
 	}
 
 	filesByTags := make(map[string][]indexedFile)
-	for _, dirEntry := range inputDirEntires {
-		if dirEntry.IsDir() {
-			// TODO scan file tree recursively.
-			continue
-		}
-		filePath := filepath.Join(*inputPath, dirEntry.Name())
-		fileBytes, err := os.ReadFile(filePath)
+	searchResults, err := searchForMarkdownFiles(inputDirEntires, *inputPath)
+	if err != nil {
+		panic(err)
+	}
+	for _, dirEntry := range searchResults {
+		fileBytes, err := os.ReadFile(dirEntry.Name())
 		if err != nil {
 			panic(err)
 		}
@@ -95,7 +104,15 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 			if m == len(files)-1 && n == len(sortedTags)-1 {
 				trailingChar = ""
 			}
-			_, err = io.WriteString(outputFile, fmt.Sprintf("- [%s](%s)%s", f.title, f.fileName, trailingChar))
+			_, err = io.WriteString(
+				outputFile,
+				fmt.Sprintf(
+					"- [%s](%s)%s",
+					f.title,
+					relativeTo(f.fileName, *outputPath),
+					trailingChar,
+				),
+			)
 			if err != nil {
 				panic(err)
 			}
@@ -109,6 +126,15 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func relativeTo(filePath string, relativeToPath string) string {
+	dir := filepath.Dir(relativeToPath)
+	relative, err := filepath.Rel(dir, filePath)
+	if err != nil {
+		return filePath
+	}
+	return relative
 }
 
 func scrapeTagsAndTitle(fileBytes []byte) ([]string, string) {
@@ -149,4 +175,57 @@ func appendFilesByTags(scrapedTags []string, filesByTags map[string][]indexedFil
 		}
 	}
 	return filesByTags
+}
+
+type fullDirEntry struct {
+	dirEntry   fs.DirEntry
+	parentPath string
+}
+
+func (d fullDirEntry) IsDir() bool {
+	return d.dirEntry.IsDir()
+}
+
+func (d fullDirEntry) Name() string {
+	return filepath.Join(d.parentPath, d.dirEntry.Name())
+}
+
+func newFullDirEntryList(root string) ([]fullDirEntry, error) {
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return nil, err
+	}
+	var fullDirEntries []fullDirEntry
+	for _, entry := range entries {
+		fullDirEntries = append(fullDirEntries, fullDirEntry{
+			dirEntry:   entry,
+			parentPath: root,
+		})
+	}
+	return fullDirEntries, nil
+}
+
+func searchForMarkdownFiles(dirEntries []fullDirEntry, root string) ([]fullDirEntry, error) {
+	debug("searching %s", root)
+	var entries []fullDirEntry
+	for _, dirEntry := range dirEntries {
+		if dirEntry.IsDir() {
+			debug("found sub directory %s", dirEntry.dirEntry.Name())
+			subEntries, err := newFullDirEntryList(dirEntry.Name())
+			if err != nil {
+				return nil, err
+			}
+			searchResults, err := searchForMarkdownFiles(subEntries, dirEntry.Name())
+			if err != nil {
+				return nil, err
+			}
+			for _, subEntry := range searchResults {
+				entries = append(entries, subEntry)
+			}
+		} else {
+			debug("found file %s", dirEntry.Name())
+			entries = append(entries, dirEntry)
+		}
+	}
+	return entries, nil
 }
