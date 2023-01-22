@@ -16,6 +16,7 @@ var (
 	inputPath  *string
 	outputPath *string
 	title      *string
+	re         = regexp.MustCompile("`[^`]+`")
 )
 
 func newRootCmd() *cobra.Command {
@@ -51,8 +52,6 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 
-	re := regexp.MustCompile("`[^`]+`")
-
 	filesByTags := make(map[string][]indexedFile)
 	for _, dirEntry := range inputDirEntires {
 		if dirEntry.IsDir() {
@@ -65,39 +64,8 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 			panic(err)
 		}
 
-		title := ""
-		name := dirEntry.Name()
-		var scrapedTags []string
-		lines := strings.Split(string(fileBytes), "\n")
-		for _, line := range lines {
-			if len(line) > 2 && line[0:2] == "# " {
-				title = line[2:]
-				break
-			}
-			if line == "---" {
-				continue
-			}
-			if len(line) == 0 {
-				continue
-			}
-			tags := re.FindAllString(line, -1)
-			for _, tag := range tags {
-				tagName := strings.Replace(tag, "`", "", -1)
-				scrapedTags = append(scrapedTags, tagName)
-			}
-		}
-		for _, tagName := range scrapedTags {
-			tagName := tagName
-			file := indexedFile{
-				fileName: name,
-				title:    title,
-			}
-			if files, ok := filesByTags[tagName]; ok {
-				filesByTags[tagName] = append(files, file)
-			} else {
-				filesByTags[tagName] = []indexedFile{file}
-			}
-		}
+		scrapedTags, title := scrapeTagsAndTitle(fileBytes)
+		filesByTags = appendFilesByTags(scrapedTags, filesByTags, title, dirEntry.Name())
 	}
 
 	outputFile, err := os.Create(*outputPath)
@@ -141,4 +109,44 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func scrapeTagsAndTitle(fileBytes []byte) ([]string, string) {
+	var scrapedTags []string
+	title := ""
+	lines := strings.Split(string(fileBytes), "\n")
+	for _, line := range lines {
+		if len(line) > 2 && line[0:2] == "# " {
+			title = line[2:]
+			break
+		}
+		if line == "---" {
+			continue
+		}
+		if len(line) == 0 {
+			continue
+		}
+		tags := re.FindAllString(line, -1)
+		for _, tag := range tags {
+			tagName := strings.Replace(tag, "`", "", -1)
+			scrapedTags = append(scrapedTags, tagName)
+		}
+	}
+	return scrapedTags, title
+}
+
+func appendFilesByTags(scrapedTags []string, filesByTags map[string][]indexedFile, title string, name string) map[string][]indexedFile {
+	for _, tagName := range scrapedTags {
+		tagName := tagName
+		file := indexedFile{
+			fileName: name,
+			title:    title,
+		}
+		if files, ok := filesByTags[tagName]; ok {
+			filesByTags[tagName] = append(files, file)
+		} else {
+			filesByTags[tagName] = []indexedFile{file}
+		}
+	}
+	return filesByTags
 }
