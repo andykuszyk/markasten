@@ -31,8 +31,8 @@ func TestTags(t *testing.T) {
 		tagsWithUnclosedTag(),
 		tagsWithCustomTitle(),
 		tagsWithFilesInSubDirectories(),
+		tagsWithFilesInNestedSubDirectories(),
 		// TODO: files in sub directories with same names/titles
-		// TODO: files in nested subdirectories, e.g. foo/bar/spam.md
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -388,6 +388,69 @@ func tagsWithFilesInSubDirectories() testCase {
 					"- [Bar](bar/bar.md)",
 					"- [Foo](foo.md)",
 					"- [Spam](spam/spam.md)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithFilesInNestedSubDirectories() testCase {
+	return testCase{
+		name: "tags with files in nested sub directories",
+		inputFiles: []file{
+			{
+				name: "eggs/foo.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar/bar.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+			{
+				name: "eggs/spam/spam.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Spam",
+					"Spam is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar/bar.md)",
+					"- [Foo](eggs/foo.md)",
+					"- [Spam](eggs/spam/spam.md)",
+					"",
+					"## foo",
+					"- [Bar](bar/bar.md)",
+					"- [Foo](eggs/foo.md)",
+					"- [Spam](eggs/spam/spam.md)",
+					"",
+					"## spam",
+					"- [Bar](bar/bar.md)",
+					"- [Foo](eggs/foo.md)",
+					"- [Spam](eggs/spam/spam.md)",
 				},
 			},
 		},
