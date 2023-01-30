@@ -99,17 +99,23 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			panic(err)
 		}
+		countedTitles := countTitles(files)
 		for m, f := range files {
 			trailingChar := "\n"
 			if m == len(files)-1 && n == len(sortedTags)-1 {
 				trailingChar = ""
 			}
+			relativePath := relativeTo(f.fileName, *outputPath)
+			title := f.title
+			if count, ok := countedTitles[f.title]; ok && count > 1 {
+				title = relativePath
+			}
 			_, err = io.WriteString(
 				outputFile,
 				fmt.Sprintf(
 					"- [%s](%s)%s",
-					f.title,
-					relativeTo(f.fileName, *outputPath),
+					title,
+					relativePath,
 					trailingChar,
 				),
 			)
@@ -228,4 +234,13 @@ func searchForMarkdownFiles(dirEntries []fullDirEntry, root string) ([]fullDirEn
 		}
 	}
 	return entries, nil
+}
+
+func countTitles(files []indexedFile) map[string]int {
+	titleCounts := make(map[string]int)
+	for _, file := range files {
+		titleCounts[file.title]++
+	}
+	return titleCounts
+
 }
