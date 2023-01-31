@@ -10,12 +10,12 @@ TODO
 markasten tags -i <path-to-input-files> -o <path-to-index-file> -t <index-title>
 ```
 
-### Find backlinks amongst files
+### Find backlinks amongst files (TODO)
 ```
 markasten backlinks find -i <path-to-input-files> -o <path-to-output-files>
 ```
 
-### Append backlinks idempotently to existing files
+### Append backlinks idempotently to existing files (TODO)
 ```
 markasten backlinks append -i <path-to-backlink-files> -o <path-to-target-files>
 ```
