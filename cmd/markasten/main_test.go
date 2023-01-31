@@ -34,6 +34,7 @@ func TestTags(t *testing.T) {
 		tagsWithFilesInSubDirectories(),
 		tagsWithFilesInNestedSubDirectories(),
 		tagsWithFilesInSubDirectoriesWithSameNames(),
+		tagsWithFilesInDotDirectory(),
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -566,6 +567,66 @@ func basicTagsWithWikiLinks() testCase {
 					"## spam",
 					"- [Bar](bar)",
 					"- [Foo](foo)",
+				},
+			},
+		},
+	}
+}
+
+func tagsWithFilesInDotDirectory() testCase {
+	return testCase{
+		name: "tags with files in sub directories",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: ".bar/bar.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+			{
+				name: "spam/spam.md",
+				contents: []string{
+					"---",
+					"`foo` `bar` `spam`",
+					"---",
+					"",
+					"# Spam",
+					"Spam is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Foo](foo.md)",
+					"- [Spam](spam/spam.md)",
+					"",
+					"## foo",
+					"- [Foo](foo.md)",
+					"- [Spam](spam/spam.md)",
+					"",
+					"## spam",
+					"- [Foo](foo.md)",
+					"- [Spam](spam/spam.md)",
 				},
 			},
 		},

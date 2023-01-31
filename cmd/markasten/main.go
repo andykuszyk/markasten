@@ -201,6 +201,10 @@ func (d fullDirEntry) Name() string {
 	return filepath.Join(d.parentPath, d.dirEntry.Name())
 }
 
+func (d fullDirEntry) IsDotFile() bool {
+	return len(d.dirEntry.Name()) > 0 && d.dirEntry.Name()[0:1] == "."
+}
+
 func newFullDirEntryList(root string) ([]fullDirEntry, error) {
 	entries, err := os.ReadDir(root)
 	if err != nil {
@@ -220,6 +224,9 @@ func searchForMarkdownFiles(dirEntries []fullDirEntry, root string) ([]fullDirEn
 	debug("searching %s", root)
 	var entries []fullDirEntry
 	for _, dirEntry := range dirEntries {
+		if dirEntry.IsDotFile() {
+			continue
+		}
 		if dirEntry.IsDir() {
 			debug("found sub directory %s", dirEntry.dirEntry.Name())
 			subEntries, err := newFullDirEntryList(dirEntry.Name())
