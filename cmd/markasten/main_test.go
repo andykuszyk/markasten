@@ -25,6 +25,7 @@ type testCase struct {
 func TestTags(t *testing.T) {
 	for _, tc := range []testCase{
 		basicTags(),
+		basicTagsWithWikiLinks(),
 		basicTagsExtraLineBreaks(),
 		tagsWithExtraSpacing(),
 		tagsWithSpacesNumbersAndSpecialCharacters(),
@@ -514,6 +515,57 @@ func tagsWithFilesInSubDirectoriesWithSameNames() testCase {
 					"- [bar/bar.md](bar/bar.md)",
 					"- [Foo](foo.md)",
 					"- [spam/eggs.md](spam/eggs.md)",
+				},
+			},
+		},
+	}
+}
+
+func basicTagsWithWikiLinks() testCase {
+	return testCase{
+		name: "basic tags with wiki links",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"`foo` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"`bar` `eggs` `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		additionalArgs: []string{"--wiki-links"},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar)",
+					"",
+					"## eggs",
+					"- [Bar](bar)",
+					"",
+					"## foo",
+					"- [Foo](foo)",
+					"",
+					"## spam",
+					"- [Bar](bar)",
+					"- [Foo](foo)",
 				},
 			},
 		},
