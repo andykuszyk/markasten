@@ -1,7 +1,8 @@
 name: release
 on:
   release:
-    - published
+    types:
+      - published
 jobs:
   docker-publish:
     runs-on: ubuntu-latest
