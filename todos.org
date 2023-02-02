@@ -1,0 +1,19 @@
+* GitHub Action
+** TODO use tag from release when building docker image
+** TODO publish docker image on release
+** TODO action.yml that uses docker image
+** TODO workflow for changes to wiki
+** TODO workflow for changes to ~docs/~
+** TODO ability to use custom docker image?
+** TODO document use of action in README
+* ~markasten tags~
+** TODO include other tags along with title in list of files per tag
+e.g:
+#+begin_src markdown
+# Index
+## Tag X
+- [File title](path/to/file.md) `tag-y`
+
+## Tag Y
+- [File title](path/to/file.md) `tag-x`
+#+end_src
