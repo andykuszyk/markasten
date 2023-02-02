@@ -20,6 +20,7 @@ var (
 	title        *string
 	debugEnabled *bool
 	wikiLinks    *bool
+	capitalize   *bool
 	re           = regexp.MustCompile("`[^`]+`")
 )
 
@@ -33,6 +34,7 @@ func newRootCmd() *cobra.Command {
 	title = tagsCommand.Flags().StringP("title", "t", "Index", "The title of the generated index file")
 	debugEnabled = tagsCommand.Flags().Bool("debug", false, "If set, debug logging will be enabled")
 	wikiLinks = tagsCommand.Flags().Bool("wiki-links", false, "If set, links will be generated for a wiki with file extensions excluded")
+	capitalize = tagsCommand.Flags().Bool("capitalize", false, "If set, tag names in the generated index will have their first character capitalized.")
 	rootCmd := &cobra.Command{
 		Use: "markasten",
 	}
@@ -97,7 +99,11 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 
 	for n, tag := range sortedTags {
 		files := filesByTags[tag]
-		_, err = io.WriteString(outputFile, fmt.Sprintf("## %s\n", tag))
+		header := tag
+		if *capitalize && len(tag) > 0 {
+			header = fmt.Sprintf("%s%s", strings.ToUpper(tag[0:1]), tag[1:])
+		}
+		_, err = io.WriteString(outputFile, fmt.Sprintf("## %s\n", header))
 		if err != nil {
 			panic(err)
 		}

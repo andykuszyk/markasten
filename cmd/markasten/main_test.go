@@ -25,6 +25,7 @@ type testCase struct {
 func TestTags(t *testing.T) {
 	for _, tc := range []testCase{
 		basicTags(),
+		basicTagsWithCapitaliseOption(),
 		basicTagsWithWikiLinks(),
 		basicTagsExtraLineBreaks(),
 		tagsWithExtraSpacing(),
@@ -627,6 +628,57 @@ func tagsWithFilesInDotDirectory() testCase {
 					"## spam",
 					"- [Foo](foo.md)",
 					"- [Spam](spam/spam.md)",
+				},
+			},
+		},
+	}
+}
+
+func basicTagsWithCapitaliseOption() testCase {
+	return testCase{
+		name:           "basic tags",
+		additionalArgs: []string{"--capitalize"},
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"`foo` `spam`",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"`bar` `eggs` `spam`",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## Bar",
+					"- [Bar](bar.md)",
+					"",
+					"## Eggs",
+					"- [Bar](bar.md)",
+					"",
+					"## Foo",
+					"- [Foo](foo.md)",
+					"",
+					"## Spam",
+					"- [Bar](bar.md)",
+					"- [Foo](foo.md)",
 				},
 			},
 		},
