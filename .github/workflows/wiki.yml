@@ -1,4 +1,4 @@
-name: docs
+name: wiki
 on: gollum
 jobs:
   tags:
