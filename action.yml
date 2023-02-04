@@ -1,0 +1,27 @@
+name: markasten
+description: A Zettlekasten toolkit for Markdown files
+inputs:
+  command:
+    default: "tags"
+    required: true
+    description: "The markasten command to run in the action"
+  additionalArgs:
+    default: ""
+    description: "Any additional markasten arguments to specify"
+  input:
+    required: true
+    description: "The input directory"
+  output:
+    required: true
+    description: "The output file name"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - markasten
+    - ${{ inputs.command }}
+    - "-i"
+    - ${{ inputs.input }}
+    - "-o"
+    - ${{ inputs.output }}
+    - ${{ inputs.additionalArgs }}
