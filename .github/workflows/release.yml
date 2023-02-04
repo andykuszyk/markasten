@@ -5,6 +5,9 @@ on:
       - published
 jobs:
   release:
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -13,5 +16,6 @@ jobs:
         with:
           go-version: 1.19
       - run: make test
+      - run: make login
       - run: make build
-      - run: echo docker publish
+      - run: make push
