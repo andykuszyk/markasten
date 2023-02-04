@@ -36,6 +36,40 @@ Or via the Docker image:
 docker run -v "$(pwd)":/input -v "$(pwd)":/output andykuszyk/markasten:latest markasten tags --capitalize -i /input -o /output/README.md 
 ```
 
+It supports the following flags:
+```sh
+$ markasten tags --help
+Usage:
+  markasten tags [flags]
+
+Flags:
+      --capitalize      If set, tag names in the generated index will have their first character capitalized.
+      --debug           If set, debug logging will be enabled
+  -h, --help            help for tags
+  -i, --input string    The location of the input files
+  -o, --output string   The location of the output files
+  -t, --title string    The title of the generated index file (default "Index")
+      --wiki-links      If set, links will be generated for a wiki with file extensions excluded
+```
+
+It can also be invoked using the GitHub Action in this repo:
+```yaml
+name: docs
+on: workflow_dispatch
+jobs:
+  tags:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: andykuszyk/markasten@master
+        with:
+          command: "tags"
+          input: "docs/"
+          output: "docs/INDEX.md"
+          additionalArgs: "--capitalize --wiki-links"
+      - run: cat docs/INDEX.md
+```
+
 ### Find backlinks amongst files (TODO)
 ```sh
 markasten backlinks find -i <path-to-input-files> -o <path-to-output-files>
