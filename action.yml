@@ -20,5 +20,5 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: docker run -v "$(pwd)":/input -v "$(pwd)":/output ${{ inputs.image }} markasten ${{ inputs.command }} -i ${{ inputs.input }} -o ${{ inputs.output }}
+    - run: docker run -v "$(pwd)":/input -v "$(pwd)":/output ${{ inputs.image }} markasten ${{ inputs.command }} -i /input/${{ inputs.input }} -o /output/${{ inputs.output }}
       shell: bash
