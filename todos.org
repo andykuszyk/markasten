@@ -3,7 +3,7 @@
 ** DONE publish docker image on release
 ** DONE action.yml that uses docker image
 ** DONE publish ~latest~ tag on release as well
-** TODO allow additional args to be provided
+** DONE allow additional args to be provided
 ** TODO workflow for changes to wiki
 ** TODO workflow for changes to ~docs/~
 ** DONE ability to use custom docker image?
