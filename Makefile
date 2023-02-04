@@ -1,6 +1,6 @@
 TAG = local
-ifneq ($(GITHUB_REF),)
-	TAG = $(GITHUB_REF)
+ifneq ($(GITHUB_REF_NAME),)
+	TAG = $(GITHUB_REF_NAME)
 endif
 
 build:
