@@ -21,3 +21,4 @@ runs:
   using: "composite"
   steps:
     - run: docker run -v "$(pwd)":/input -v "$(pwd)":/output ${{ inputs.image }} markasten ${{ inputs.command }} -i ${{ inputs.input }} -o ${{ inputs.output }}
+      shell: bash
