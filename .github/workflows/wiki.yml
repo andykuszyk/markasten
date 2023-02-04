@@ -1,5 +1,5 @@
 name: docs
-on: workflow_dispatch
+on: gollum
 jobs:
   tags:
     runs-on: ubuntu-latest
