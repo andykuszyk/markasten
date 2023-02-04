@@ -2,14 +2,38 @@
 > A Zettelkasten tool for Markdown files.
 
 ## Installation
+`markasten` is a command line tool which can either be installed locally, or used via a Docker image.
+
+To install locally using the Go toolchain:
 ```sh
 go install github.com/andykuszyk/markasten/cmd/markasten@master
+markasten --help
+```
+
+Or, to use via a Docker image:
+```sh
+docker run andykuszyk/markasten:latest markasten --help
 ```
 
 ## Usage
 ### Generate an index of tags from some files
+The `tags` command is used to generate an index of files based on tags present in a header in each file. An example of a header is as follows:
+
+```markdown
+---
+`tag-one` `tag-two`
+
+---
+```
+
+The `tags` command can be invoked using the CLI:
 ```sh
 markasten tags -i <path-to-input-files> -o <path-to-index-file> -t <index-title>
+```
+
+Or via the Docker image:
+```sh
+docker run -v "$(pwd)":/input -v "$(pwd)":/output andykuszyk/markasten:latest markasten tags --capitalize -i /input -o /output/README.md 
 ```
 
 ### Find backlinks amongst files (TODO)

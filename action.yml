@@ -13,7 +13,7 @@ inputs:
     description: "The input directory"
   output:
     required: true
-    description: "The output file name"
+    description: "The output file name or directory"
 runs:
   using: "docker"
   image: "Dockerfile"
