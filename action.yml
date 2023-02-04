@@ -1,6 +1,9 @@
 name: markasten
 description: A Zettlekasten toolkit for Markdown files
 inputs:
+  image:
+    default: "andykuszyk/markasten:latest"
+    description: "The Markasten Docker image/tag to use"
   command:
     default: "tags"
     required: true
@@ -15,13 +18,6 @@ inputs:
     required: true
     description: "The output file name or directory"
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - markasten
-    - ${{ inputs.command }}
-    - "-i"
-    - ${{ inputs.input }}
-    - "-o"
-    - ${{ inputs.output }}
-    - ${{ inputs.additionalArgs }}
+  using: "composite"
+  steps:
+    - run: docker run -v "$(pwd)":/input -v "$(pwd)":/output ${{ inputs.image }} markasten ${{ inputs.command }} -i ${{ inputs.input }} -o ${{ inputs.output }}
