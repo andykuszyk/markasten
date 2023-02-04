@@ -11,6 +11,8 @@ login:
 
 push:
 	docker push andykuszyk/markasten:${TAG}
+	docker tag andykuszyk/markasten:${TAG} andykuszyk/markasten:latest
+	docker push andykuszyk/markasten:latest
 
 test:
 	go test ./... -v
