@@ -1,6 +1,6 @@
 * GitHub Action
-** TODO use tag from release when building docker image
-** TODO publish docker image on release
+** DONE use tag from release when building docker image
+** DONE publish docker image on release
 ** TODO action.yml that uses docker image
 ** TODO workflow for changes to wiki
 ** TODO workflow for changes to ~docs/~
