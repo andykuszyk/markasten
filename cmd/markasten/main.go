@@ -154,10 +154,23 @@ func relativeTo(filePath string, relativeToPath string) string {
 	return relative
 }
 
+func firstNonEmptyLine(lines []string) string {
+	for _, line := range lines {
+		if len(line) > 0 {
+			return line
+		}
+	}
+	return ""
+}
+
 func scrapeTagsAndTitle(fileBytes []byte) ([]string, string) {
 	var scrapedTags []string
 	title := ""
 	lines := strings.Split(string(fileBytes), "\n")
+	if firstNonEmptyLine(lines) != "---" {
+		debug("first line was %s, no tags detected", lines[0])
+		return scrapedTags, title
+	}
 	for _, line := range lines {
 		if len(line) > 2 && line[0:2] == "# " {
 			title = line[2:]
