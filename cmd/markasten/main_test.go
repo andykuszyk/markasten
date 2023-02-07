@@ -36,6 +36,7 @@ func TestTags(t *testing.T) {
 		tagsWithFilesInNestedSubDirectories(),
 		tagsWithFilesInSubDirectoriesWithSameNames(),
 		tagsWithFilesInDotDirectory(),
+		fileWithNoTagsAndBacktickedText(),
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -679,6 +680,36 @@ func basicTagsWithCapitaliseOption() testCase {
 					"## Spam",
 					"- [Bar](bar.md)",
 					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func fileWithNoTagsAndBacktickedText() testCase {
+	return testCase{
+		name: "file with no tags and backticked text",
+		inputFiles: []file{
+			{
+				name: "home.md",
+				contents: []string{
+					"Foo is `about` something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"# Bar",
+					"Bar is about `something`, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"",
 				},
 			},
 		},

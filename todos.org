@@ -4,11 +4,12 @@
 ** DONE action.yml that uses docker image
 ** DONE publish ~latest~ tag on release as well
 ** DONE allow additional args to be provided
-** TODO workflow for changes to wiki
+** DONE workflow for changes to wiki
 ** TODO workflow for changes to ~docs/~
 ** DONE ability to use custom docker image?
 ** DONE document use of action in README
 * ~markasten tags~
+** TODO text in backquotes not in a tags header should not be scraped
 ** TODO include other tags along with title in list of files per tag
 e.g:
 #+begin_src markdown
