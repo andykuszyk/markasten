@@ -30,7 +30,6 @@ func TestTags(t *testing.T) {
 		basicTagsExtraLineBreaks(),
 		tagsWithExtraSpacing(),
 		tagsWithSpacesNumbersAndSpecialCharacters(),
-		tagsWithUnclosedTag(),
 		tagsWithCustomTitle(),
 		tagsWithFilesInSubDirectories(),
 		tagsWithFilesInNestedSubDirectories(),
@@ -97,7 +96,9 @@ func basicTags() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo` `spam`",
+					"tags:",
+					"- foo",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -108,7 +109,10 @@ func basicTags() testCase {
 				name: "bar.md",
 				contents: []string{
 					"---",
-					"`bar` `eggs` `spam`",
+					"tags:",
+					"- bar",
+					"- eggs",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -148,7 +152,9 @@ func basicTagsExtraLineBreaks() testCase {
 				contents: []string{
 					"",
 					"---",
-					"`foo` `spam`",
+					"tags:",
+					"- foo",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -159,7 +165,10 @@ func basicTagsExtraLineBreaks() testCase {
 				name: "bar.md",
 				contents: []string{
 					"---",
-					"`bar` `eggs` `spam`",
+					"tags:",
+					"- bar",
+					"- eggs",
+					"- spam",
 					"---",
 					"",
 					"",
@@ -199,7 +208,9 @@ func tagsWithExtraSpacing() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"   `foo` `spam`  ",
+					"tags:",
+					"  - foo",
+					"  - spam",
 					"---",
 					"",
 					"# Foo",
@@ -210,7 +221,10 @@ func tagsWithExtraSpacing() testCase {
 				name: "bar.md",
 				contents: []string{
 					"---",
-					"`bar`   `eggs`   `spam`",
+					"tags:",
+					" - foo ",
+					" - eggs",
+					" - spam",
 					"---",
 					"",
 					"# Bar",
@@ -249,7 +263,10 @@ func tagsWithSpacesNumbersAndSpecialCharacters() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					" `foo bar` `spam-eggs` `green_h@m` ",
+					"tags:",
+					"- foo bar",
+					"- spam-eggs",
+					"- green_h@m",
 					"---",
 					"",
 					"# Foo",
@@ -276,35 +293,6 @@ func tagsWithSpacesNumbersAndSpecialCharacters() testCase {
 	}
 }
 
-func tagsWithUnclosedTag() testCase {
-	return testCase{
-		name: "tags with unclosed tag",
-		inputFiles: []file{
-			{
-				name: "foo.md",
-				contents: []string{
-					"---",
-					" `foo` `bar",
-					"---",
-					"",
-					"# Foo",
-					"Foo is about something, similar to [bar](./bar.md).",
-				},
-			},
-		},
-		outputFiles: []file{
-			{
-				name: "index.md",
-				contents: []string{
-					"# Index",
-					"## foo",
-					"- [Foo](foo.md)",
-				},
-			},
-		},
-	}
-}
-
 func tagsWithCustomTitle() testCase {
 	return testCase{
 		name:           "tags with custom title",
@@ -314,7 +302,8 @@ func tagsWithCustomTitle() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo`",
+					"tags:",
+					"- foo",
 					"---",
 					"",
 					"# Foo",
@@ -343,7 +332,10 @@ func tagsWithFilesInSubDirectories() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -354,7 +346,10 @@ func tagsWithFilesInSubDirectories() testCase {
 				name: "bar/bar.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -365,7 +360,10 @@ func tagsWithFilesInSubDirectories() testCase {
 				name: "spam/spam.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Spam",
@@ -406,7 +404,10 @@ func tagsWithFilesInNestedSubDirectories() testCase {
 				name: "eggs/foo.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -417,7 +418,10 @@ func tagsWithFilesInNestedSubDirectories() testCase {
 				name: "bar/bar.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -428,7 +432,10 @@ func tagsWithFilesInNestedSubDirectories() testCase {
 				name: "eggs/spam/spam.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Spam",
@@ -469,7 +476,10 @@ func tagsWithFilesInSubDirectoriesWithSameNames() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -480,7 +490,10 @@ func tagsWithFilesInSubDirectoriesWithSameNames() testCase {
 				name: "bar/bar.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -491,7 +504,10 @@ func tagsWithFilesInSubDirectoriesWithSameNames() testCase {
 				name: "spam/eggs.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -532,7 +548,9 @@ func basicTagsWithWikiLinks() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo` `spam`",
+					"tags:",
+					"- foo",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -543,7 +561,10 @@ func basicTagsWithWikiLinks() testCase {
 				name: "bar.md",
 				contents: []string{
 					"---",
-					"`bar` `eggs` `spam`",
+					"tags:",
+					"- bar",
+					"- eggs",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -583,7 +604,10 @@ func tagsWithFilesInDotDirectory() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -594,7 +618,10 @@ func tagsWithFilesInDotDirectory() testCase {
 				name: ".bar/bar.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Bar",
@@ -605,7 +632,10 @@ func tagsWithFilesInDotDirectory() testCase {
 				name: "spam/spam.md",
 				contents: []string{
 					"---",
-					"`foo` `bar` `spam`",
+					"tags:",
+					"- foo",
+					"- bar",
+					"- spam",
 					"---",
 					"",
 					"# Spam",
@@ -644,7 +674,9 @@ func basicTagsWithCapitaliseOption() testCase {
 				name: "foo.md",
 				contents: []string{
 					"---",
-					"`foo` `spam`",
+					"tags:",
+					"- foo",
+					"- spam",
 					"---",
 					"",
 					"# Foo",
@@ -655,7 +687,10 @@ func basicTagsWithCapitaliseOption() testCase {
 				name: "bar.md",
 				contents: []string{
 					"---",
-					"`bar` `eggs` `spam`",
+					"tags:",
+					"- bar",
+					"- eggs",
+					"- spam",
 					"---",
 					"",
 					"# Bar",

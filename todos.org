@@ -8,6 +8,7 @@
 ** TODO workflow for changes to ~docs/~
 ** DONE ability to use custom docker image?
 ** DONE document use of action in README
+** TODO publish action to marketplace
 * ~markasten tags~
 ** TODO scrape tags from yaml frontmatter, rather than backlinks
 e.g:
@@ -20,7 +21,7 @@ tags:
 #+end_src
 this should render in a horizontal table in github
 see [[https://github.blog/2013-09-27-viewing-yaml-metadata-in-your-documents/][here]] for more information
-** TODO text in backquotes not in a tags header should not be scraped
+** DONE text in backquotes not in a tags header should not be scraped
 latest commit doesn't seem to have fixed this for some reason
 ** TODO include other tags along with title in list of files per tag
 e.g:
