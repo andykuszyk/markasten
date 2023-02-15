@@ -13,5 +13,5 @@ jobs:
           additionalArgs: --capitalize --title 'Documentation
             Herein lies the documentation for teams foo and bar, and everyone else besides.
             '
-      - run: cat docs/INDEX.md
+      - run: cat docs/README.md
       - run: git diff
