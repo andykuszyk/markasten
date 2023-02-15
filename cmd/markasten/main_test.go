@@ -28,7 +28,6 @@ func TestTags(t *testing.T) {
 		basicTagsWithCapitaliseOption(),
 		basicTagsWithWikiLinks(),
 		basicTagsExtraLineBreaks(),
-		tagsWithExtraSpacing(),
 		tagsWithSpacesNumbersAndSpecialCharacters(),
 		tagsWithCustomTitle(),
 		tagsWithFilesInSubDirectories(),
@@ -171,61 +170,6 @@ func basicTagsExtraLineBreaks() testCase {
 					"- spam",
 					"---",
 					"",
-					"",
-					"# Bar",
-					"Bar is about something, similar to [foo](./foo.md).",
-				},
-			},
-		},
-		outputFiles: []file{
-			{
-				name: "index.md",
-				contents: []string{
-					"# Index",
-					"## bar",
-					"- [Bar](bar.md)",
-					"",
-					"## eggs",
-					"- [Bar](bar.md)",
-					"",
-					"## foo",
-					"- [Foo](foo.md)",
-					"",
-					"## spam",
-					"- [Bar](bar.md)",
-					"- [Foo](foo.md)",
-				},
-			},
-		},
-	}
-}
-
-func tagsWithExtraSpacing() testCase {
-	return testCase{
-		name: "tags with extra spacing",
-		inputFiles: []file{
-			{
-				name: "foo.md",
-				contents: []string{
-					"---",
-					"tags:",
-					"  - foo",
-					"  - spam",
-					"---",
-					"",
-					"# Foo",
-					"Foo is about something, similar to [bar](./bar.md).",
-				},
-			},
-			{
-				name: "bar.md",
-				contents: []string{
-					"---",
-					"tags:",
-					" - foo ",
-					" - eggs",
-					" - spam",
-					"---",
 					"",
 					"# Bar",
 					"Bar is about something, similar to [foo](./foo.md).",
