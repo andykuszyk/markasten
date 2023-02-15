@@ -10,5 +10,6 @@ jobs:
           command: "tags"
           input: "docs/"
           output: "docs/INDEX.md"
-          additionalArgs: "--capitalize --wiki-links"
+          additionalArgs: "--capitalize"
       - run: cat docs/INDEX.md
+      - run: git diff
