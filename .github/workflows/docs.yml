@@ -10,9 +10,8 @@ jobs:
           command: "tags"
           input: "docs/"
           output: "docs/README.md"
-          additionalArgs: |
-            --capitalize --title 'Documentation
-Herein lies the documentation for teams foo and bar, and everyone else besides.
-'
+          additionalArgs: --capitalize --title 'Documentation
+            Herein lies the documentation for teams foo and bar, and everyone else besides.
+            '
       - run: cat docs/INDEX.md
       - run: git diff
