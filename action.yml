@@ -1,7 +1,8 @@
 name: markasten
 description: A Zettlekasten toolkit for Markdown files
-branding.icon: book-open
-branding.color: white
+branding:
+  icon: book-open
+  color: white
 inputs:
   image:
     default: "andykuszyk/markasten:latest"
