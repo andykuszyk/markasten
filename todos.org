@@ -33,3 +33,13 @@ e.g:
 ## Tag Y
 - [File title](path/to/file.md) `tag-x`
 #+end_src
+
+* experiments
+#+begin_src bash :results output verbatim
+cd docs
+docker run -v "$(pwd)":/input andykuszyk/markasten:local markasten tags --capitalize -i /input -o /input/README.md --title 'Documentation
+Herein lies the documentation for teams foo and bar, and everyone else besides.
+'
+#+end_src
+
+#+RESULTS:
