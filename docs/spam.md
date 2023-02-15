@@ -1,6 +1,7 @@
 ---
-`all-docs` `onboarding`
-
+tags:
+- all-docs
+- onboarding
 ---
 
 # Spam

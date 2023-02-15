@@ -1,6 +1,8 @@
 ---
-`bits-and-bobs` `info` `team-foo`
-
+tags:
+- bits-and-bobs
+- info
+- team-foo
 ---
 
 # Bobs

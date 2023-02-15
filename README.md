@@ -17,12 +17,15 @@ docker run andykuszyk/markasten:latest markasten --help
 
 ## Usage
 ### Generate an index of tags from some files
-The `tags` command is used to generate an index of files based on tags present in a header in each file. An example of a header is as follows:
+The `tags` command is used to generate an index of files based on tags present in a header in each file. Headers are YAML formatted, and are expected to appear as frontmatter/metadata at the top of the file, enclosed in `---`. Tags are expected in the `tags` key.
+
+An example of a header is as follows:
 
 ```markdown
 ---
-`tag-one` `tag-two`
-
+tags:
+- tag-one
+- tag-two
 ---
 ```
 

@@ -1,6 +1,8 @@
 ---
-`team-bar` `details` `info`
-
+tags:
+- team-bar
+- details
+- info
 ---
 
 # Details

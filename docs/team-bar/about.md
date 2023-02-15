@@ -1,6 +1,8 @@
 ---
-`team-bar` `info` `onboarding`
-
+tags:
+- team-bar
+- info
+- onboarding
 ---
 
 # About
