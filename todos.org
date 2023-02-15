@@ -5,12 +5,12 @@
 ** DONE publish ~latest~ tag on release as well
 ** DONE allow additional args to be provided
 ** DONE workflow for changes to wiki
-** TODO workflow for changes to ~docs/~
+** DONE workflow for changes to ~docs/~
 ** DONE ability to use custom docker image?
 ** DONE document use of action in README
 ** TODO publish action to marketplace
 * ~markasten tags~
-** TODO scrape tags from yaml frontmatter, rather than backlinks
+** DONE scrape tags from yaml frontmatter, rather than backlinks
 e.g:
 #+begin_src markdown
 ---
