@@ -68,10 +68,14 @@ jobs:
         with:
           command: "tags"
           input: "docs/"
-          output: "docs/INDEX.md"
-          additionalArgs: "--capitalize --wiki-links"
-      - run: cat docs/INDEX.md
+          output: "docs/README.md"
+          additionalArgs: "--capitalize"
+      - run: cat docs/README.md
 ```
+
+For a working example of a tags workflow, see:
+- [`.github/workflows/docs.yml`](.github/workflows/docs.yml) for an example of generating a tags index from Markdown files in a repo.
+- [`.github/workflows/wiki.yml`](.github/workflows/wiki.yml) for an example of generating a tags index from Markdown files in a wiki.
 
 ### Find backlinks amongst files (TODO)
 ```sh
