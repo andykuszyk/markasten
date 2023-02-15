@@ -667,7 +667,7 @@ func tagsWithFilesInDotDirectory() testCase {
 
 func basicTagsWithCapitaliseOption() testCase {
 	return testCase{
-		name:           "basic tags",
+		name:           "basic tags with capitalise option",
 		additionalArgs: []string{"--capitalize"},
 		inputFiles: []file{
 			{

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -171,24 +172,51 @@ func scrapeTagsAndTitle(fileBytes []byte) ([]string, string) {
 		debug("first line was %s, no tags detected", lines[0])
 		return scrapedTags, title
 	}
+
+	foundYaml := false
+	finishedYaml := false
+	var yamlLines []string
 	for _, line := range lines {
 		if len(line) > 2 && line[0:2] == "# " {
 			title = line[2:]
 			break
 		}
 		if line == "---" {
+			if foundYaml {
+				// If we had previously found yaml, this line
+				// marks the end of the yaml.
+				finishedYaml = true
+			}
+			if !foundYaml {
+				// if we haven't found yaml yet, this line
+				// marks the beginning of yaml
+				foundYaml = true
+			}
 			continue
 		}
 		if len(line) == 0 {
 			continue
 		}
-		tags := re.FindAllString(line, -1)
-		for _, tag := range tags {
-			tagName := strings.Replace(tag, "`", "", -1)
-			scrapedTags = append(scrapedTags, tagName)
+		if foundYaml && !finishedYaml {
+			yamlLines = append(yamlLines, line)
 		}
 	}
-	return scrapedTags, title
+	debug("found yaml:")
+	for _, line := range yamlLines {
+		debug(line)
+	}
+
+	fm := frontmatter{}
+	err := yaml.Unmarshal([]byte(strings.Join(yamlLines, "\n")), &fm)
+	if err != nil {
+		debug("error unmarshalling yaml: %s", err)
+		return scrapedTags, title
+	}
+	return fm.Tags, title
+}
+
+type frontmatter struct {
+	Tags []string
 }
 
 func appendFilesByTags(scrapedTags []string, filesByTags map[string][]indexedFile, title string, name string) map[string][]indexedFile {
