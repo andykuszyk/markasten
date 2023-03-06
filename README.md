@@ -51,6 +51,7 @@ Flags:
   -h, --help            help for tags
   -i, --input string    The location of the input files
   -o, --output string   The location of the output files
+      --tag-links       If set, links to files in the generated index will be annotated with the list of other tags they have.
   -t, --title string    The title of the generated index file (default "Index")
       --wiki-links      If set, links will be generated for a wiki with file extensions excluded
 ```
