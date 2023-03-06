@@ -22,6 +22,7 @@ var (
 	debugEnabled *bool
 	wikiLinks    *bool
 	capitalize   *bool
+	tagLinks     *bool
 	re           = regexp.MustCompile("`[^`]+`")
 )
 
@@ -36,6 +37,7 @@ func newRootCmd() *cobra.Command {
 	debugEnabled = tagsCommand.Flags().Bool("debug", false, "If set, debug logging will be enabled")
 	wikiLinks = tagsCommand.Flags().Bool("wiki-links", false, "If set, links will be generated for a wiki with file extensions excluded")
 	capitalize = tagsCommand.Flags().Bool("capitalize", false, "If set, tag names in the generated index will have their first character capitalized.")
+	tagLinks = tagsCommand.Flags().Bool("tag-links", false, "If set, links to files in the generated index will be annotated with the list of other tags they have.")
 	rootCmd := &cobra.Command{
 		Use: "markasten",
 	}
@@ -56,8 +58,9 @@ func main() {
 }
 
 type indexedFile struct {
-	fileName string
-	title    string
+	fileName  string
+	title     string
+	otherTags []string
 }
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {
@@ -122,15 +125,24 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 			if count, ok := countedTitles[f.title]; ok && count > 1 {
 				title = relativePath
 			}
-			_, err = io.WriteString(
-				outputFile,
-				fmt.Sprintf(
-					"- [%s](%s)%s",
-					title,
-					relativePath,
-					trailingChar,
-				),
+
+			line := fmt.Sprintf(
+				"- [%s](%s)",
+				title,
+				relativePath,
 			)
+			if *tagLinks {
+				for _, otherTag := range f.otherTags {
+					line = fmt.Sprintf("%s `%s`", line, otherTag)
+				}
+			}
+			line = fmt.Sprintf(
+				"%s%s",
+				line,
+				trailingChar,
+			)
+
+			_, err = io.WriteString(outputFile, line)
 			if err != nil {
 				panic(err)
 			}
@@ -223,8 +235,9 @@ func appendFilesByTags(scrapedTags []string, filesByTags map[string][]indexedFil
 	for _, tagName := range scrapedTags {
 		tagName := tagName
 		file := indexedFile{
-			fileName: name,
-			title:    title,
+			fileName:  name,
+			title:     title,
+			otherTags: getOtherTags(scrapedTags, tagName),
 		}
 		if files, ok := filesByTags[tagName]; ok {
 			filesByTags[tagName] = append(files, file)
@@ -233,6 +246,17 @@ func appendFilesByTags(scrapedTags []string, filesByTags map[string][]indexedFil
 		}
 	}
 	return filesByTags
+}
+
+func getOtherTags(tags []string, tag string) []string {
+	var otherTags []string
+	for _, t := range tags {
+		if t == tag {
+			continue
+		}
+		otherTags = append(otherTags, t)
+	}
+	return otherTags
 }
 
 type fullDirEntry struct {

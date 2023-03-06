@@ -1,4 +1,4 @@
-* GitHub Action
+* GitHub Action [10/10]
 ** DONE use tag from release when building docker image
 ** DONE publish docker image on release
 ** DONE action.yml that uses docker image
@@ -9,7 +9,7 @@
 ** DONE ability to use custom docker image?
 ** DONE document use of action in README
 ** DONE publish action to marketplace
-* ~markasten tags~
+* ~markasten tags~ [3/3]
 ** DONE scrape tags from yaml frontmatter, rather than backlinks
 e.g:
 #+begin_src markdown
@@ -23,7 +23,7 @@ this should render in a horizontal table in github
 see [[https://github.blog/2013-09-27-viewing-yaml-metadata-in-your-documents/][here]] for more information
 ** DONE text in backquotes not in a tags header should not be scraped
 latest commit doesn't seem to have fixed this for some reason
-** TODO include other tags along with title in list of files per tag
+** DONE include other tags along with title in list of files per tag
 e.g:
 #+begin_src markdown
 # Index

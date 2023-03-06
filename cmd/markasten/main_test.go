@@ -25,6 +25,7 @@ type testCase struct {
 func TestTags(t *testing.T) {
 	for _, tc := range []testCase{
 		basicTags(),
+		basicTagsWithTagLinks(),
 		basicTagsWithCapitaliseOption(),
 		basicTagsWithWikiLinks(),
 		basicTagsExtraLineBreaks(),
@@ -689,6 +690,62 @@ func fileWithNoTagsAndBacktickedText() testCase {
 				contents: []string{
 					"# Index",
 					"",
+				},
+			},
+		},
+	}
+}
+
+func basicTagsWithTagLinks() testCase {
+	return testCase{
+		name:           "basic tags with tag links",
+		additionalArgs: []string{"--tag-links"},
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"tags:",
+					"- foo",
+					"- spam",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"tags:",
+					"- bar",
+					"- eggs",
+					"- spam",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"## bar",
+					"- [Bar](bar.md) `eggs` `spam`",
+					"",
+					"## eggs",
+					"- [Bar](bar.md) `bar` `spam`",
+					"",
+					"## foo",
+					"- [Foo](foo.md) `spam`",
+					"",
+					"## spam",
+					"- [Bar](bar.md) `bar` `eggs`",
+					"- [Foo](foo.md) `foo`",
 				},
 			},
 		},
