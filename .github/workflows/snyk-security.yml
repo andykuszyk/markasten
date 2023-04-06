@@ -43,7 +43,7 @@ jobs:
         run: make build
         # Runs Snyk Container (Container and SCA) analysis and uploads result to Snyk.
       - name: Snyk Container monitor
-        run: snyk container monitor andykuszyk/markasten:local --file=Dockerfile
+        run: snyk container monitor andykuszyk/markasten:master --file=Dockerfile
 
         # Push the Snyk Code results into GitHub Code Scanning tab
       - name: Upload result to GitHub Code Scanning
