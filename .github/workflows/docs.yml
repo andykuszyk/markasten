@@ -6,8 +6,8 @@ jobs:
   tags:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: andykuszyk/markasten@master
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - uses: andykuszyk/markasten@e27ceb1a5893ea148827a8a1d0c33195fff183be
         with:
           command: "tags"
           input: "docs/"
