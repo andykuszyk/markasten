@@ -1,5 +1,7 @@
 name: wiki
 on: gollum
+permissions:
+  contents: read
 jobs:
   tags:
     runs-on: ubuntu-latest
