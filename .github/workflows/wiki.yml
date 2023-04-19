@@ -6,10 +6,10 @@ jobs:
   tags:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@f4b7f84864484a7bf31766abe9204da3cbe65b3
         with:
           repository: ${{github.repository}}.wiki
-      - uses: andykuszyk/markasten@master
+      - uses: andykuszyk/markasten@e27ceb1a5893ea148827a8a1d0c33195fff183be
         with:
           command: "tags"
           input: "./"
