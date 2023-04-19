@@ -5,7 +5,7 @@ branding:
   color: white
 inputs:
   image:
-    default: "andykuszyk/markasten:latest"
+    default: "form3tech/markasten:latest"
     description: "The Markasten Docker image/tag to use"
   command:
     default: "tags"
