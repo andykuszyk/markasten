@@ -53,6 +53,7 @@ Flags:
   -o, --output string   The location of the output files
       --tag-links       If set, links to files in the generated index will be annotated with the list of other tags they have.
   -t, --title string    The title of the generated index file (default "Index")
+      --toc             If set, a table of contents will be generated containing a link to the heading of each tag
       --wiki-links      If set, links will be generated for a wiki with file extensions excluded
 ```
 
@@ -91,3 +92,6 @@ markasten backlinks append -i <path-to-backlink-files> -o <path-to-target-files>
 ## Development
 1. Clone this repo.
 2. Run `go test ./...`
+
+## Releases
+Releases are created manually in GitHub, which will trigger a new Docker image to be built and published in GitHub Actions.
