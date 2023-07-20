@@ -1,6 +1,21 @@
 # Documentation
 Herein lies the documentation for teams foo and bar, and everyone else besides.
 
+
+---
+
+## Table of contents
+- [All-docs](#All-docs)
+- [Bits-and-bobs](#Bits-and-bobs)
+- [Details](#Details)
+- [How-to](#How-to)
+- [Info](#Info)
+- [Onboarding](#Onboarding)
+- [Team-bar](#Team-bar)
+- [Team-foo](#Team-foo)
+
+---
+
 ## All-docs
 - [Eggs](eggs.md)
 - [Spam](spam.md)

@@ -23,6 +23,7 @@ var (
 	wikiLinks    *bool
 	capitalize   *bool
 	tagLinks     *bool
+	toc          *bool
 	re           = regexp.MustCompile("`[^`]+`")
 )
 
@@ -38,6 +39,7 @@ func newRootCmd() *cobra.Command {
 	wikiLinks = tagsCommand.Flags().Bool("wiki-links", false, "If set, links will be generated for a wiki with file extensions excluded")
 	capitalize = tagsCommand.Flags().Bool("capitalize", false, "If set, tag names in the generated index will have their first character capitalized.")
 	tagLinks = tagsCommand.Flags().Bool("tag-links", false, "If set, links to files in the generated index will be annotated with the list of other tags they have.")
+	toc = tagsCommand.Flags().Bool("toc", false, "If set, a table of contents will be generated containing a link to the heading of each tag")
 	rootCmd := &cobra.Command{
 		Use: "markasten",
 	}
@@ -61,6 +63,13 @@ type indexedFile struct {
 	fileName  string
 	title     string
 	otherTags []string
+}
+
+func writeOrPanic(file *os.File, text string) {
+	_, err := io.WriteString(file, text)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {
@@ -90,10 +99,7 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 	defer outputFile.Close()
-	_, err = io.WriteString(outputFile, fmt.Sprintf("# %s\n", *title))
-	if err != nil {
-		panic(err)
-	}
+	writeOrPanic(outputFile, fmt.Sprintf("# %s\n", *title))
 
 	var sortedTags []string
 	for tag, _ := range filesByTags {
@@ -101,16 +107,24 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 	}
 	sort.Strings(sortedTags)
 
+	if *toc {
+		writeOrPanic(outputFile, "\n")
+		writeOrPanic(outputFile, "---\n")
+		writeOrPanic(outputFile, "\n")
+		writeOrPanic(outputFile, "## Table of contents\n")
+		for _, tag := range sortedTags {
+			header := tagToHeader(tag)
+			writeOrPanic(outputFile, fmt.Sprintf("- [%s](#%s)\n", header, header))
+		}
+		writeOrPanic(outputFile, "\n")
+		writeOrPanic(outputFile, "---\n")
+		writeOrPanic(outputFile, "\n")
+	}
+
 	for n, tag := range sortedTags {
 		files := filesByTags[tag]
-		header := tag
-		if *capitalize && len(tag) > 0 {
-			header = fmt.Sprintf("%s%s", strings.ToUpper(tag[0:1]), tag[1:])
-		}
-		_, err = io.WriteString(outputFile, fmt.Sprintf("## %s\n", header))
-		if err != nil {
-			panic(err)
-		}
+		writeOrPanic(outputFile, fmt.Sprintf("## %s\n", tagToHeader(tag)))
+
 		countedTitles := countTitles(files)
 		for m, f := range files {
 			trailingChar := "\n"
@@ -142,22 +156,22 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 				trailingChar,
 			)
 
-			_, err = io.WriteString(outputFile, line)
-			if err != nil {
-				panic(err)
-			}
+			writeOrPanic(outputFile, line)
 		}
 		if n < len(sortedTags)-1 {
-			_, err = io.WriteString(outputFile, "\n")
-			if err != nil {
-				panic(err)
-			}
+			writeOrPanic(outputFile, "\n")
 		}
 	}
 
 	return nil
 }
 
+func tagToHeader(tag string) string {
+	if *capitalize && len(tag) > 0 {
+		return fmt.Sprintf("%s%s", strings.ToUpper(tag[0:1]), tag[1:])
+	}
+	return tag
+}
 func relativeTo(filePath string, relativeToPath string) string {
 	dir := filepath.Dir(relativeToPath)
 	relative, err := filepath.Rel(dir, filePath)
