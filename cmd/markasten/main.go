@@ -114,7 +114,7 @@ func tagsRunFn(cmd *cobra.Command, args []string) error {
 		writeOrPanic(outputFile, "## Table of contents\n")
 		for _, tag := range sortedTags {
 			header := tagToHeader(tag)
-			writeOrPanic(outputFile, fmt.Sprintf("- [%s](#%s)\n", header, header))
+			writeOrPanic(outputFile, fmt.Sprintf("- [%s](#%s)\n", header, headerToLink(header)))
 		}
 		writeOrPanic(outputFile, "\n")
 		writeOrPanic(outputFile, "---\n")
@@ -344,4 +344,10 @@ func countTitles(files []indexedFile) map[string]int {
 
 func makeWikiLink(path string) string {
 	return path[:len(path)-len(filepath.Ext(path))]
+}
+
+func headerToLink(header string) string {
+	// Some special characters produce invalid heading links in GitHub.
+	// In this case, a heading of "foo:bar" requires a link of "foobar".
+	return strings.ReplaceAll(header, ":", "")
 }

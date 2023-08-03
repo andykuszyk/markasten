@@ -37,6 +37,7 @@ func TestTags(t *testing.T) {
 		tagsWithFilesInDotDirectory(),
 		fileWithNoTagsAndBacktickedText(),
 		tocFlag(),
+		tocFlagWithColonInTag(),
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -809,6 +810,73 @@ func tocFlag() testCase {
 					"- [Bar](bar.md)",
 					"",
 					"## foo",
+					"- [Foo](foo.md)",
+					"",
+					"## spam",
+					"- [Bar](bar.md)",
+					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func tocFlagWithColonInTag() testCase {
+	return testCase{
+		name:           "table of contents",
+		additionalArgs: []string{"--toc"},
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"---",
+					"tags:",
+					"- fo:o",
+					"- spam",
+					"---",
+					"",
+					"# Foo",
+					"Foo is about something, similar to [bar](./bar.md).",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"---",
+					"tags:",
+					"- bar",
+					"- eggs",
+					"- spam",
+					"---",
+					"",
+					"# Bar",
+					"Bar is about something, similar to [foo](./foo.md).",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "index.md",
+				contents: []string{
+					"# Index",
+					"",
+					"---",
+					"",
+					"## Table of contents",
+					"- [bar](#bar)",
+					"- [eggs](#eggs)",
+					"- [fo:o](#foo)",
+					"- [spam](#spam)",
+					"",
+					"---",
+					"",
+					"## bar",
+					"- [Bar](bar.md)",
+					"",
+					"## eggs",
+					"- [Bar](bar.md)",
+					"",
+					"## fo:o",
 					"- [Foo](foo.md)",
 					"",
 					"## spam",
