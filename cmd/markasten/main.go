@@ -348,6 +348,7 @@ func makeWikiLink(path string) string {
 
 func headerToLink(header string) string {
 	// Some special characters produce invalid heading links in GitHub.
-	// In this case, a heading of "foo:bar" requires a link of "foobar".
-	return strings.ReplaceAll(header, ":", "")
+	// In this case, a heading of "foo:bar" requires a link of "foobar",
+	// and a heading of "foo bar" requires a link of "foo-bar".
+	return strings.ReplaceAll(strings.ReplaceAll(header, ":", ""), " ", "-")
 }
