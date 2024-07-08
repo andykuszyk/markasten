@@ -22,6 +22,45 @@ type testCase struct {
 	outputFiles    []file
 }
 
+func TestBacklinksFind(t *testing.T) {
+	for _, tc := range []testCase{
+		basicBacklinksFind(),
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
+			expectedOutputDir := writeFiles(t, tc.outputFiles, "markasten-expected-output")
+			expectedOutputFilePath := filepath.Join(expectedOutputDir, tc.outputFiles[0].name)
+			actualOutputFilePath := filepath.Join(inputDir, tc.outputFiles[0].name)
+
+			rootCmd := newRootCmd()
+			args := []string{
+				"backlinks",
+				"find",
+				"--debug",
+				"-i",
+				inputDir,
+				"-o",
+				actualOutputFilePath,
+			}
+			if len(tc.additionalArgs) > 0 {
+				for _, a := range tc.additionalArgs {
+					args = append(args, a)
+				}
+			}
+			rootCmd.SetArgs(args)
+			rootCmd.Execute()
+
+			expectedOutputBytes, err := os.ReadFile(expectedOutputFilePath)
+			require.NoError(t, err)
+
+			actualOutputBytes, err := os.ReadFile(actualOutputFilePath)
+			require.NoError(t, err)
+
+			require.Equal(t, string(expectedOutputBytes), string(actualOutputBytes))
+		})
+	}
+}
+
 func TestTags(t *testing.T) {
 	for _, tc := range []testCase{
 		basicTags(),
@@ -140,6 +179,37 @@ func basicTags() testCase {
 					"## spam",
 					"- [Bar](bar.md)",
 					"- [Foo](foo.md)",
+				},
+			},
+		},
+	}
+}
+
+func basicBacklinksFind() testCase {
+	return testCase{
+		name: "basic backlinks find",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"# Foo",
+					"Foo mentions [bar](./bar.md)",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"# Bar",
+					"Bar is mentioned by foo.",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "backlinks.yml",
+				contents: []string{
+					"foo.md:",
+					"  - bar.md",
 				},
 			},
 		},

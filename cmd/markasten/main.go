@@ -28,6 +28,31 @@ var (
 )
 
 func newRootCmd() *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use: "markasten",
+	}
+	rootCmd.AddCommand(newTagsCommand())
+	rootCmd.AddCommand(newBacklinksCommand())
+	return rootCmd
+
+}
+
+func newBacklinksCommand() *cobra.Command {
+	backlinkCommand := &cobra.Command{
+		Use: "backlinks",
+	}
+	findCommand := &cobra.Command{
+		Use:  "find",
+		RunE: backlinkFindRunFn,
+	}
+	debugEnabled = findCommand.Flags().Bool("debug", false, "If set, debug logging will be enabled")
+	inputPath = findCommand.Flags().StringP("input", "i", "", "The location of the input files")
+	outputPath = findCommand.Flags().StringP("output", "o", "", "The location of the output file")
+	backlinkCommand.AddCommand(findCommand)
+	return backlinkCommand
+}
+
+func newTagsCommand() *cobra.Command {
 	tagsCommand := &cobra.Command{
 		Use:  "tags",
 		RunE: tagsRunFn,
@@ -40,12 +65,7 @@ func newRootCmd() *cobra.Command {
 	capitalize = tagsCommand.Flags().Bool("capitalize", false, "If set, tag names in the generated index will have their first character capitalized.")
 	tagLinks = tagsCommand.Flags().Bool("tag-links", false, "If set, links to files in the generated index will be annotated with the list of other tags they have.")
 	toc = tagsCommand.Flags().Bool("toc", false, "If set, a table of contents will be generated containing a link to the heading of each tag")
-	rootCmd := &cobra.Command{
-		Use: "markasten",
-	}
-	rootCmd.AddCommand(tagsCommand)
-	return rootCmd
-
+	return tagsCommand
 }
 
 func debug(format string, v ...any) {
@@ -70,6 +90,17 @@ func writeOrPanic(file *os.File, text string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func backlinkFindRunFn(cmd *cobra.Command, args []string) error {
+	outputFile, err := os.Create(*outputPath)
+	if err != nil {
+		panic(err)
+	}
+	defer outputFile.Close()
+	writeOrPanic(outputFile, `foo.md:
+  - bar.md`)
+	return nil
 }
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {

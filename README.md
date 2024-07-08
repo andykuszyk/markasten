@@ -81,7 +81,7 @@ For a working example of a tags workflow, see:
 
 ### Find backlinks amongst files (TODO)
 ```sh
-markasten backlinks find -i <path-to-input-files> -o <path-to-output-files>
+markasten backlinks find -i <path-to-input-files> -o <path-to-output-file>
 ```
 
 ### Append backlinks idempotently to existing files (TODO)
