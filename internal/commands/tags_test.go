@@ -1,66 +1,14 @@
-package main
+package commands_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
+
+	"github.com/andykuszyk/markasten/internal/commands"
 
 	"github.com/stretchr/testify/require"
 )
-
-type file struct {
-	name     string
-	contents []string
-}
-
-type testCase struct {
-	name           string
-	additionalArgs []string
-	inputFiles     []file
-	outputFiles    []file
-}
-
-func TestBacklinksFind(t *testing.T) {
-	for _, tc := range []testCase{
-		basicBacklinksFind(),
-		basicBacklinksFindWithMultipleFiles(),
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
-			expectedOutputDir := writeFiles(t, tc.outputFiles, "markasten-expected-output")
-			expectedOutputFilePath := filepath.Join(expectedOutputDir, tc.outputFiles[0].name)
-			actualOutputFilePath := filepath.Join(inputDir, tc.outputFiles[0].name)
-
-			rootCmd := newRootCmd()
-			args := []string{
-				"backlinks",
-				"find",
-				"--debug",
-				"-i",
-				inputDir,
-				"-o",
-				actualOutputFilePath,
-			}
-			if len(tc.additionalArgs) > 0 {
-				for _, a := range tc.additionalArgs {
-					args = append(args, a)
-				}
-			}
-			rootCmd.SetArgs(args)
-			rootCmd.Execute()
-
-			expectedOutputBytes, err := os.ReadFile(expectedOutputFilePath)
-			require.NoError(t, err)
-
-			actualOutputBytes, err := os.ReadFile(actualOutputFilePath)
-			require.NoError(t, err)
-
-			require.Equal(t, string(expectedOutputBytes), string(actualOutputBytes))
-		})
-	}
-}
 
 func TestTags(t *testing.T) {
 	for _, tc := range []testCase{
@@ -86,7 +34,7 @@ func TestTags(t *testing.T) {
 			expectedOutputFilePath := filepath.Join(expectedOutputDir, tc.outputFiles[0].name)
 			actualOutputFilePath := filepath.Join(inputDir, tc.outputFiles[0].name)
 
-			rootCmd := newRootCmd()
+			rootCmd := commands.NewRootCmd()
 			args := []string{
 				"tags",
 				"--debug",
@@ -112,23 +60,6 @@ func TestTags(t *testing.T) {
 			require.Equal(t, string(expectedOutputBytes), string(actualOutputBytes))
 		})
 	}
-}
-
-func writeFiles(t *testing.T, files []file, directoryName string) string {
-	dir, err := os.MkdirTemp("", directoryName)
-	require.NoError(t, err)
-	for _, file := range files {
-		subDir := filepath.Join(dir, filepath.Dir(file.name))
-		fmt.Printf("creating directory %s\n", subDir)
-		require.NoError(t, os.MkdirAll(subDir, 0700))
-		fmt.Printf("writing file %s\n", filepath.Join(dir, file.name))
-		require.NoError(t, os.WriteFile(
-			filepath.Join(dir, file.name),
-			[]byte(strings.Join(file.contents, "\n")),
-			0600,
-		))
-	}
-	return dir
 }
 
 func basicTags() testCase {
@@ -180,77 +111,6 @@ func basicTags() testCase {
 					"## spam",
 					"- [Bar](bar.md)",
 					"- [Foo](foo.md)",
-				},
-			},
-		},
-	}
-}
-
-func basicBacklinksFind() testCase {
-	return testCase{
-		name: "basic backlinks find",
-		inputFiles: []file{
-			{
-				name: "foo.md",
-				contents: []string{
-					"# Foo",
-					"Foo mentions [bar](./bar.md)",
-				},
-			},
-			{
-				name: "bar.md",
-				contents: []string{
-					"# Bar",
-					"Bar is mentioned by foo.",
-				},
-			},
-		},
-		outputFiles: []file{
-			{
-				name: "backlinks.yml",
-				contents: []string{
-					"foo.md:",
-					"  - bar.md",
-				},
-			},
-		},
-	}
-}
-
-func basicBacklinksFindWithMultipleFiles() testCase {
-	return testCase{
-		name: "backlinks find with multiple files",
-		inputFiles: []file{
-			{
-				name: "foo.md",
-				contents: []string{
-					"# Foo",
-					"Foo mentions [bar](./bar.md)",
-				},
-			},
-			{
-				name: "spam.md",
-				contents: []string{
-					"# Spam",
-					"Spam mentions [bar](bar.md)",
-				},
-			},
-			{
-				name: "bar.md",
-				contents: []string{
-					"# Bar",
-					"Bar is mentioned by foo.",
-				},
-			},
-		},
-		outputFiles: []file{
-			{
-				name: "backlinks.yml",
-				contents: []string{
-					"foo.md:",
-					"  - bar.md",
-					"spam.md:",
-					"  - bar.md",
 				},
 			},
 		},
