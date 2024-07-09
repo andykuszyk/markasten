@@ -93,6 +93,29 @@ func writeOrPanic(file *os.File, text string) {
 }
 
 func backlinkFindRunFn(cmd *cobra.Command, args []string) error {
+	debug("backlink find called with -i %s and -o %s\n", *inputPath, *outputPath)
+	inputDirEntires, err := newFullDirEntryList(*inputPath)
+	if err != nil {
+		panic(err)
+	}
+
+	backlinksByFile := make(map[string][]string)
+	searchResults, err := searchForMarkdownFiles(inputDirEntires, *inputPath)
+	if err != nil {
+		panic(err)
+	}
+	for _, dirEntry := range searchResults {
+		fileBytes, err := os.ReadFile(dirEntry.Name())
+		if err != nil {
+			panic(err)
+		}
+		backlinks, err := scrapeBacklinks(fileBytes)
+		if err != nil {
+			panic(err)
+		}
+		backlinksByFile[dirEntry.Name()] = backlinks
+	}
+
 	outputFile, err := os.Create(*outputPath)
 	if err != nil {
 		panic(err)
@@ -101,6 +124,10 @@ func backlinkFindRunFn(cmd *cobra.Command, args []string) error {
 	writeOrPanic(outputFile, `foo.md:
   - bar.md`)
 	return nil
+}
+
+func scrapeBacklinks(_ []byte) ([]string, error) {
+	return nil, nil
 }
 
 func tagsRunFn(cmd *cobra.Command, args []string) error {

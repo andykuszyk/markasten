@@ -25,6 +25,7 @@ type testCase struct {
 func TestBacklinksFind(t *testing.T) {
 	for _, tc := range []testCase{
 		basicBacklinksFind(),
+		basicBacklinksFindWithMultipleFiles(),
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			inputDir := writeFiles(t, tc.inputFiles, "markasten-input")
@@ -209,6 +210,46 @@ func basicBacklinksFind() testCase {
 				name: "backlinks.yml",
 				contents: []string{
 					"foo.md:",
+					"  - bar.md",
+				},
+			},
+		},
+	}
+}
+
+func basicBacklinksFindWithMultipleFiles() testCase {
+	return testCase{
+		name: "backlinks find with multiple files",
+		inputFiles: []file{
+			{
+				name: "foo.md",
+				contents: []string{
+					"# Foo",
+					"Foo mentions [bar](./bar.md)",
+				},
+			},
+			{
+				name: "spam.md",
+				contents: []string{
+					"# Spam",
+					"Spam mentions [bar](bar.md)",
+				},
+			},
+			{
+				name: "bar.md",
+				contents: []string{
+					"# Bar",
+					"Bar is mentioned by foo.",
+				},
+			},
+		},
+		outputFiles: []file{
+			{
+				name: "backlinks.yml",
+				contents: []string{
+					"foo.md:",
+					"  - bar.md",
+					"spam.md:",
 					"  - bar.md",
 				},
 			},
