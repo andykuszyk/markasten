@@ -1,7 +1,10 @@
 package commands
 
 import (
+	"fmt"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -10,6 +13,7 @@ var (
 	backlinksFindInputPath    *string
 	backlinksFindOutputPath   *string
 	backlinksFindDebugEnabled *bool
+	LinkRegexp                = regexp.MustCompile(`\[.*\]\(.*\)`)
 )
 
 func newBacklinksCommand() *cobra.Command {
@@ -45,11 +49,7 @@ func backlinkFindRunFn(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			panic(err)
 		}
-		backlinks, err := scrapeBacklinks(fileBytes)
-		if err != nil {
-			panic(err)
-		}
-		backlinksByFile[dirEntry.Name()] = backlinks
+		backlinksByFile[dirEntry.Name()] = scrapeBacklinks(fileBytes)
 	}
 
 	outputFile, err := os.Create(*backlinksFindOutputPath)
@@ -57,11 +57,26 @@ func backlinkFindRunFn(cmd *cobra.Command, args []string) error {
 		panic(err)
 	}
 	defer outputFile.Close()
-	writeOrPanic(outputFile, `foo.md:
-  - bar.md`)
+	for fileName, backlinks := range backlinksByFile {
+		writeOrPanic(outputFile, fmt.Sprintf("%s:\n", relativeTo(fileName, *backlinksFindInputPath)))
+		for _, backlink := range backlinks {
+			writeOrPanic(outputFile, fmt.Sprintf("  - %s\n", relativeTo(backlink, *backlinksFindInputPath)))
+		}
+	}
 	return nil
 }
 
-func scrapeBacklinks(_ []byte) ([]string, error) {
-	return nil, nil
+func scrapeBacklinks(fileBytes []byte) []string {
+	lines := strings.Split(string(fileBytes), "\n")
+	var backlinks []string
+	for _, line := range lines {
+		matches := LinkRegexp.FindAllString(line, -1)
+		if matches == nil {
+			continue
+		}
+		for _, match := range matches {
+			backlinks = append(backlinks, match)
+		}
+	}
+	return backlinks
 }

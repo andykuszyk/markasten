@@ -50,6 +50,29 @@ func TestBacklinksFind(t *testing.T) {
 	}
 }
 
+type linkRegexpTestCase struct {
+	input   string
+	matches []string
+}
+
+func TestLinkRegexp(t *testing.T) {
+	for _, tc := range []linkRegexpTestCase{
+		{
+			input:   "foo bar spam",
+			matches: []string{},
+		},
+		{
+			input:   "foo [bar](spam)",
+			matches: []string{"[bar](spam)"},
+		},
+	} {
+		t.Run(tc.input, func(t *testing.T) {
+			matches := commands.LinkRegexp.FindAllString(tc.input, -1)
+			require.ElementsMatch(t, tc.matches, matches)
+		})
+	}
+}
+
 func basicBacklinksFind() testCase {
 	return testCase{
 		name: "basic backlinks find",

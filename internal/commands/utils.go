@@ -6,12 +6,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
 var (
-	re           = regexp.MustCompile("`[^`]+`")
 	debugEnabled *bool
 )
 
