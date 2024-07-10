@@ -58,9 +58,9 @@ func backlinkFindRunFn(cmd *cobra.Command, args []string) error {
 	}
 	defer outputFile.Close()
 	for fileName, backlinks := range backlinksByFile {
-		writeOrPanic(outputFile, fmt.Sprintf("%s:\n", relativeTo(fileName, *backlinksFindInputPath)))
+		writeOrPanic(outputFile, fmt.Sprintf("%s:\n", relativeTo(fileName, *backlinksFindOutputPath)))
 		for _, backlink := range backlinks {
-			writeOrPanic(outputFile, fmt.Sprintf("  - %s\n", relativeTo(backlink, *backlinksFindInputPath)))
+			writeOrPanic(outputFile, fmt.Sprintf("  - %s\n", relativeTo(backlink, *backlinksFindOutputPath)))
 		}
 	}
 	return nil
